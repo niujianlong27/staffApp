@@ -1,4 +1,4 @@
-# wgsc-web
+# staffApp
 
 > A Vue.js project
 
