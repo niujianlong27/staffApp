@@ -68,11 +68,11 @@
         fromData: [
           {
             cName: '账号',
-            eName: 'mobile',
+            eName: 'username',
             type: 'text',
             value: '',
-            placeholder: '请输入手机号',
-            rule: [{required: true, message: '请输入手机号'}]
+            placeholder: '请输入账号',
+            rule: [{required: true, message: '请输入账号'}]
           },
           {
             cName: '密码',

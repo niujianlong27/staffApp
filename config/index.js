@@ -13,7 +13,7 @@ module.exports = {
     proxyTable: {
       '/tonginfo': {
         //target ：目标网址及当前请求路径的实际请求网址服务器
-        target: 'http://39.98.85.187:8083/api/',
+        target: 'http://test.tonginfo.com:8085/',
         //是否开启代理服务器，true 可以实现跨域，
         changeOrigin: true,
         //重写路径，baiduApi，被替换成空，请求实际网址即target+get请求的路径

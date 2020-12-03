@@ -1,6 +1,5 @@
-import {getCatalog, getUserinfo} from '../utils/service';
-import {Set_Catalog, Is_Login} from './mutation-type.js'
-import cookie from "vue-cookies"
+import {getUserinfo} from '../utils/service';
+import {Is_Login} from './mutation-type.js'
 import {Toast} from 'vant';
 import {setlocalStorage, removelocalStorage} from "../config/Utils";
 import router from '../router';
@@ -12,19 +11,19 @@ export default {
   // },
 
   async getUserInfo({commit, state}) {
+    let msg = '正在登录'
     const toast = Toast.loading({
       duration: 0, // 持续展示 toast
       forbidClick: true,
-      message: '正在登录',
+      message: msg,
     });
     let res = await getUserinfo(state.loginForm);
     if (res.success) {
       toast.clear();
       router.push({path: "/home"});
-      Toast.success("登录成功");
-      commit(Is_Login, true);
+      // Toast.success("登录成功");
+      // commit(Is_Login, true);
       setlocalStorage("token", res.data.token); // token
-      setlocalStorage("userInfo", res.data.user); // 用户信息
     } else {
       Toast.fail(res.msg);
     }

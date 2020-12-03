@@ -1,9 +1,6 @@
 <template>
   <div class="person">
     <nav>
-      <!--<span :class="{spanBorder:active == '0'}">周报</span>-->
-      <!--<span :class="{spanBorder:active == '1'}">月报</span>-->
-      <!--<span :class="{spanBorder:active == '2'}">我的报销单</span>-->
 
       <span @click="change(index)" v-for="(item,index) in title" :class="{spanBorder:active == index}">{{item}}</span>
       <span><van-icon @click.stop="toPath" size="20" name="add"/></span>

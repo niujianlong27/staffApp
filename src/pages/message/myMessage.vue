@@ -4,7 +4,22 @@
       站内信
     </nav>
     <main>
-      <div><span class="left">你的报销申请已被查看！</span><span class="right">2020-08-09</span></div>
+      <template v-if="isLoding">
+        <van-loading color="#1989fa" size="24px">数据加载中...</van-loading>
+      </template>
+      <template v-else>
+        <template v-if="noticelists.length > 0">
+
+          <template v-for="data in noticelists">
+            <div><span class="left">你的报销申请已被查看！</span><span class="right">2020-08-09</span></div>
+          </template>
+        </template>
+        <template v-else>
+          <van-empty description="暂无数据"/>
+        </template>
+      </template>
+
+
     </main>
     <foot></foot>
 
@@ -16,43 +31,49 @@
   import urls from '../../utils/urls';
   import http from '../../utils/http';
   import foot from '../../components/foot';
-
-  import {
-    Checkbox,
-    Cell,
-    Empty,
-    Stepper,
-    CellGroup,
-    Button,
-    List,
-    Loading,
-    CheckboxGroup,
-    SubmitBar,
-    Toast
-  } from 'vant';
+  import {List, Empty, Toast, Loading} from 'vant';
 
   export default {
     name: "myMessage",
     components: {
       pageNav, foot,
-      [Checkbox.name]: Checkbox,
       [Loading.name]: Loading,
-      [CheckboxGroup.name]: CheckboxGroup,
-      [Cell.name]: Cell,
-      [CellGroup.name]: CellGroup,
-      [Stepper.name]: Stepper,
-      [SubmitBar.name]: SubmitBar,
-      [Button.name]: Button,
       [Empty.name]: Empty,
       [List.name]: List,
-      [Toast.name]: Toast,
+      Toast
     },
     data() {
-      return {}
+      return {
+        noticelists: [], // 消息列表
+        isLoding: false, // 查询状态
+      }
     },
-    methods: {},
-    mounted() {
+    methods: {
+      getNotice() {
+        http.get(urls.noticeQueryByUser, {}).then(res => {
+          this.isLoding = false;
+          if (res.success) {
+            this.noticelists = res.data;
+          }
 
+        }).catch(err => {
+
+        })
+      },
+      noticeById() {
+        let id = '';
+        http.post(`${urls.noticeById}/${id}`, {}).then(res => {
+          if (res.success) {
+          }
+
+        }).catch(err => {
+
+        })
+      }
+    },
+    mounted() {
+      this.isLoding = true;
+      this.getNotice()
     }
   }
 </script>
@@ -68,23 +89,33 @@
       margin: 20px 0;
       @include sc(16px, #DEE9FF)
     }
-    main{
+    main {
       background-color: #111622;
     }
     main > div {
       background: #2B354C;
       overflow: hidden;
-      padding: 20px;
+      padding: 20px 15px;
       border-radius: 5px;
-      span{
+      span {
+        display: inline-block;
         font-size: 12px;
-        &:first-child{
+        &:first-child {
+          text-align: left;
+          width: 70%;
           color: #F2F2F2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
         }
-        &:last-child{
+        &:last-child {
           color: #8094BD;
         }
       }
+    }
+    .van-empty {
+      background-color: #111622;
     }
   }
 

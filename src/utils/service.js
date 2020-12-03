@@ -5,7 +5,7 @@ import {Toast} from 'vant';
 
 export const getUserinfo = async (values) => {
   return new Promise((resolve, reject) => {
-    http.post(`${urls.loginByPass}?mobile=${values.mobile}&password=${values.password}`, {}).then(res => {
+    http.post(`${urls.login}?username=${values.username}&password=${values.password}`, {}).then(res => {
         resolve(res)
       }
     ).catch(err => {
