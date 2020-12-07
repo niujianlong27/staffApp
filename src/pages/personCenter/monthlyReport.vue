@@ -31,6 +31,19 @@
               </van-field>
             </template>
 
+            <template v-if="item.type == 'calendar'">
+              <van-field :border="false"
+                         :value="item.value"
+                         :required="item.required"
+                         :name="item.eName"
+                         :label="item.cName"
+                         :placeholder="item.placeholder"
+                         @click="item.showPicker = true"/>
+
+              <van-calendar type="range" v-model="item.showPicker" :min-date="item.minDate" :max-date="item.maxDate"
+                            @confirm="onConfirm($event,item)"/>
+            </template>
+
           </template>
 
           <div style="margin: 16px;">
@@ -52,12 +65,13 @@
   import http from "../../utils/http";
   import urls from '../../utils/urls';
   import pageNav from '../../components/pageNav'
-  import {Form, Field, Button, Toast} from 'vant';
+  import {Form, Field, Button, Toast, Calendar} from 'vant';
 
   export default {
     name: "monthlyReport",
     components: {
       pageNav,
+      [Calendar.name]: Calendar,
       [Form.name]: Form,
       [Field.name]: Field,
       [Toast.name]: Toast,
@@ -66,7 +80,7 @@
     },
     data() {
       return {
-        obj:{}, // 月报详情
+        obj: {}, // 月报详情
         state: '',
         title: '', // 标题
         fromData: [
@@ -115,21 +129,57 @@
             placeholder: '请输入下月计划',
             rule: [{required: true, message: '请输入下月计划'}]
           },
+          {
+            cName: '月报时间',
+            eName: 'startDate',
+            type: 'calendar',
+            value: '',
+            minDate: new Date(2020, 0, 1),
+            maxDate: new Date(),
+            showPicker: false,
+            required: false,
+            placeholder: '请选择月报时间',
+            rule: [{required: true, message: '请选择月报时间'}]
+          },
 
-        ]
+        ],
+        startDate: "",
+        endDate: ""
+
       }
     },
     methods: {
-      addMonthly(values) {
+
+      addMonthly(values) { // 新增
+        values.startDate = this.startDate;
+        values.endDate = this.endDate;
+
         http.post(urls.addWorkreport, {type: 2, ...values}).then(res => {
           if (res.success) {
+            Toast.success('添加成功！');
             this.$router.go(-1)
           }
 
         }).catch(err => {
 
         })
-      }
+      },
+
+      onConfirm(date, item) {
+        const [start, end] = date;
+        this.startDate = this.formatDate(start);
+        this.endDate = this.formatDate(end);
+        item.value = `${this.startDate} - ${ this.endDate}`;
+        item.showPicker = false;
+      },
+
+
+      formatDate(date) { //处理如期
+        let Y = date.getFullYear() + '-';
+        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        let D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + '';
+        return `${Y}${ M}${D}`;
+      },
     },
     created() {
       this.obj = this.$route.query.data;
@@ -170,6 +220,14 @@
         font-size: 16px;
         margin-top: 70px;
       }
+      /deep/ .van-calendar__day {
+        color: black;
+      }
+
+      /deep/ .van-calendar__header {
+        color: black;
+      }
+
     }
   }
 

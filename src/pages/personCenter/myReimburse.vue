@@ -8,7 +8,8 @@
           <p>报销事由：{{obj.title}}</p>
           <p>报销金额：¥ {{obj.amount}}</p>
           <p>报销时间：{{obj.sedate}}</p>
-          <p>报销凭证</p>
+          <p><span >报销凭证:</span>
+            <span style="display: block;text-align: center"><img :src="obj.certificate | setImg" alt=""></span></p>
         </section>
       </template>
 
@@ -36,6 +37,7 @@
                          :required="item.required"
                          :name="item.eName"
                          :label="item.cName"
+                         :rules="item.rule"
                          :placeholder="item.placeholder"
                          @click="item.showPicker = true"/>
 
@@ -45,10 +47,11 @@
 
 
             <template v-if="item.type == 'uploader'">
-              <van-field :border="false" :required="item.required" :name="item.eName" :rules="item.rule"
+              <van-field :key="item.eName" :border="false" :required="item.required" :name="item.eName"
+                         :rules="item.rule"
                          :label="item.cName">
                 <template #input>
-                  <van-uploader :after-read="afterRead(item)" :max-count="1" v-model="item.value"/>
+                  <van-uploader :after-read="afterRead" :max-count="1" v-model="item.value"/>
                 </template>
               </van-field>
             </template>
@@ -129,19 +132,22 @@
             type: 'uploader',
             value: [],
             placeholder: '请上传报销凭证',
-            rule: [{required: false, message: '请上传报销凭证'}]
+            rule: [{required: true, message: '请上传报销凭证'}]
           },
 
         ],
         obj: {},
+        certificate: "",
       }
     },
     methods: {
-      addReimburse(value) { // 提交
-        value.certificate = '122';
 
+      addReimburse(value) { // 提交
+        value.certificate = this.certificate;
         http.post(urls.addSeaccount, value).then(res => {
-          if (res.success){
+          if (res.success) {
+            Toast.success('添加成功！');
+            this.$router.go(-1)
 
           }
 
@@ -149,23 +155,34 @@
 
         })
       },
-      afterRead(item) {
 
-        if (item.value.length > 0) {
-          let files = item.value[0].file;
-          // let formData = new FormData();
-          // for (var key in files) {
-          //   formData.append(key, files[key])
-          // }
-          // formData.append('file', files);
-          //
-          // console.log(formData);
-          // http.post(urls.addWorkreport, formData).then(res => {
-          //
-          // }).catch(err => {
-          //
-          // })
-        }
+
+      afterRead(item) {
+        let params = {
+          base64: item.content,
+          name: item.file.name,
+          type: item.file.type
+        };
+        item.status = 'uploading';
+        item.message = '上传中...';
+        // let formData = new FormData();
+        // for (var key in files) {
+        //   formData.append(key, files[key])
+        // }
+        // formData.append('file', files);
+        //
+        // console.log(formData);
+        http.post(urls.upload, params).then(res => {
+          if (res.success) {
+            item.status = '';
+            this.certificate = res.data.realFileName
+          } else {
+            item.status = 'failed';
+            item.message = '上传失败';
+          }
+        }).catch(err => {
+
+        })
 
 
       },
@@ -180,6 +197,7 @@
     },
     created() {
       this.obj = this.$route.query.data;
+      console.log(this.obj);
       this.state = this.$route.query.state;
       this.title = this.state === 'see' ? '报销单' : '申请报销';
     },

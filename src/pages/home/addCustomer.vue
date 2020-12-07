@@ -40,7 +40,6 @@
                 :title="item.title"
                 :value-key="item.key"
                 :columns="item.columns"
-                @change="change"
                 @cancel="item.showPicker = false"
                 @confirm="pickConfirm($event,item)"
               />
@@ -48,11 +47,21 @@
             </van-popup>
           </template>
 
-          <template v-if="(item.type == 'uploader') && uploaderShow">
+          <template v-if="(item.type == 'uploader1') && uploaderShow">
             <van-field :border="false" :required="item.required" :name="item.eName" :rules="item.rule"
                        :label="item.cName">
               <template #input>
-                <van-uploader :after-read="afterRead(item)" :max-count="1" v-model="item.value"/>
+                <van-uploader :after-read="idAfterRead" :max-count="1" v-model="item.value"/>
+              </template>
+            </van-field>
+          </template>
+
+
+          <template v-if="(item.type == 'uploader2') && uploaderShow">
+            <van-field :border="false" :required="item.required" :name="item.eName" :rules="item.rule"
+                       :label="item.cName">
+              <template #input>
+                <van-uploader :after-read="biAfterRead" :max-count="1" v-model="item.value"/>
               </template>
             </van-field>
           </template>
@@ -157,7 +166,7 @@
             required: false,
             cName: '客户证件照片',
             eName: 'idcard',
-            type: 'uploader',
+            type: 'uploader1',
             value: [],
             placeholder: '请上传客户证件照片',
             rule: [{required: true, message: '请上传客户证件照片'}]
@@ -166,7 +175,7 @@
             required: false,
             cName: '客户营业执照',
             eName: 'bizlice',
-            type: 'uploader',
+            type: 'uploader2',
             value: [],
             placeholder: '请上传客户营业执照',
             rule: [{required: true, message: '请上传客户营业执照'}]
@@ -176,50 +185,59 @@
       }
     },
     methods: {
-      addCustomer(values) { // 登录
-        console.log(values)
+      addCustomer(values) { // 提交
+        values.bizlice = this.bizlice;
+        values.idcard = this.idcard;
 
       },
 
+      biAfterRead(item) { // 图片上传
+        let params = {
+          base64: item.content,
+          name: item.file.name,
+          type: item.file.type
+        };
+        item.status = 'uploading';
+        item.message = '上传中...';
+        http.post(urls.upload, params).then(res => {
+          if (res.success) {
+            item.status = '';
+            this.bizlice = res.data.realFileName
+          } else {
+            item.status = 'failed';
+            item.message = '上传失败';
+          }
+        }).catch(err => {
 
-      afterRead(item) { // 图片上传
-        // if (item.value.length > 0) {
-        //   let params = {
-        //     base64: item.value[0].content,
-        //     name: item.value[0].file.name,
-        //     type: item.value[0].file.type
-        //   };
-        //   item.value[0].status = 'uploading';
-        //   item.value[0].message = '上传中...';
-        //   http.post(urls.upload, params).then(res => {
-        //     if (res.success) {
-        //       item.value[0].status = '';
-        //       if (item.eName == 'idcard') {
-        //         this.idcard = res.data.realFileName
-        //       }
-        //       if (item.eName == 'bizlice') {
-        //         this.bizlice = res.data.realFileName
-        //       }
-        //     } else {
-        //       item.value[0].status = 'failed';
-        //       item.value[0].message = '上传失败';
-        //     }
-        //
-        //   }).catch(err => {
-        //
-        //   })
-        // }
+        })
 
 
       },
 
+      idAfterRead(item) { // 图片上传
+        let params = {
+          base64: item.content,
+          name: item.file.name,
+          type: item.file.type
+        };
+        item.status = 'uploading';
+        item.message = '上传中...';
+        http.post(urls.upload, params).then(res => {
+          if (res.success) {
+            item.status = '';
+            this.idcard = res.data.realFileName
+          } else {
+            item.status = 'failed';
+            item.message = '上传失败';
+          }
+        }).catch(err => {
 
-      change(picker, values, index) { // 选择改变
+        })
 
       },
-
 
       pickConfirm(value, item) { // 选择框确定按钮
+        console.log(value, item)
         if (item.eName == "type") {
           if (value[0].text !== '消费者') {
             this.uploaderShow = true

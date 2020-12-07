@@ -41,8 +41,6 @@
 
               <van-calendar type="range" v-model="item.showPicker" :min-date="item.minDate" :max-date="item.maxDate"
                             @confirm="onConfirm($event,item)"/>
-
-              <!--// <van-calendar v-model="show"  @confirm="onConfirm" />-->
             </template>
 
           </template>
@@ -133,7 +131,7 @@
 
           {
             cName: '周报时间',
-            eName: 'sedate',
+            eName: 'startDate',
             type: 'calendar',
             value: '',
             minDate: new Date(2020, 0, 1),
@@ -152,9 +150,11 @@
     methods: {
       addWeekly(values) {
         values.startDate = this.startDate;
-        values.endDate = this.endDate
+        values.endDate = this.endDate;
         http.post(urls.addWorkreport, {type: 1, ...values}).then(res => {
+          console.log(121);
           if (res.success) {
+            Toast.success('添加成功！');
             this.$router.go(-1)
           }
 
@@ -165,7 +165,6 @@
       },
       onConfirm(date, item) {
         const [start, end] = date;
-        console.log(start.getDate());
         this.startDate = this.formatDate(start);
         this.endDate = this.formatDate(end);
         item.value = `${this.startDate} - ${ this.endDate}`;
