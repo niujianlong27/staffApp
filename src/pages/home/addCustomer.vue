@@ -48,8 +48,9 @@
             </van-popup>
           </template>
 
-          <template v-if="item.type == 'uploader'">
-            <van-field     :border="false" :required="item.required" :name="item.eName" :rules="item.rule" :label="item.cName">
+          <template v-if="(item.type == 'uploader') && uploaderShow">
+            <van-field :border="false" :required="item.required" :name="item.eName" :rules="item.rule"
+                       :label="item.cName">
               <template #input>
                 <van-uploader :after-read="afterRead(item)" :max-count="1" v-model="item.value"/>
               </template>
@@ -74,7 +75,9 @@
 
 <script>
   import pageNav from '../../components/pageNav'
-  import {Form, Field, Button,Uploader, Popup, Picker, Toast} from 'vant';
+  import {Form, Field, Button, Uploader, Popup, Picker, Toast} from 'vant';
+  import urls from '../../utils/urls';
+  import http from '../../utils/http';
 
   export default {
     name: "addCustomer",
@@ -100,11 +103,19 @@
             placeholder: '请输入客户名称',
             rule: [{required: true, message: '请输入客户名称'}]
           },
-
+          {
+            cName: '客户手机号',
+            eName: 'mobile',
+            type: 'text',
+            value: '',
+            required: false,
+            placeholder: '请输入客户手机号',
+            rule: [{required: true, message: '请输入客户手机号'}]
+          },
           {
             required: false,
             cName: '客户身份',
-            eName: 'area',
+            eName: 'type',
             title: '请选择客户身份',
             type: 'select',
             value: '',
@@ -126,7 +137,7 @@
             required: false,
             cName: '客户等级',
             eName: 'area',
-            title: '请选择客户身份',
+            title: '请选择客户等级',
             type: 'select',
             value: '',
             key: 'text',
@@ -139,25 +150,34 @@
                 ]
               }],
             showPicker: false,
-            rule: [{required: true, message: '请选择客户身份'}]
+            rule: [{required: true, message: '请选择客户等级'}]
           },
 
           {
             required: false,
-            cName: '客户资料',
+            cName: '客户证件照片',
             eName: 'idcard',
             type: 'uploader',
             value: [],
-            placeholder: '请上传客户资料',
-            rule: [{required: true, message: '请上传客户资料'}]
+            placeholder: '请上传客户证件照片',
+            rule: [{required: true, message: '请上传客户证件照片'}]
           },
-
+          {
+            required: false,
+            cName: '客户营业执照',
+            eName: 'bizlice',
+            type: 'uploader',
+            value: [],
+            placeholder: '请上传客户营业执照',
+            rule: [{required: true, message: '请上传客户营业执照'}]
+          },
         ],
+        uploaderShow: false,
       }
     },
     methods: {
-
       addCustomer(values) { // 登录
+        console.log(values)
 
       },
 
@@ -194,10 +214,19 @@
       },
 
 
-
       change(picker, values, index) { // 选择改变
+
       },
+
+
       pickConfirm(value, item) { // 选择框确定按钮
+        if (item.eName == "type") {
+          if (value[0].text !== '消费者') {
+            this.uploaderShow = true
+          } else {
+            this.uploaderShow = false
+          }
+        }
         item.value = `${value[0].text}`;
         item.showPicker = false;
       },

@@ -2,7 +2,7 @@
   <div class="myAchievement">
     <nav>
       <span class="left">总销售额度</span>
-      <span @click.stop="rank" class="right">业绩排行</span>
+      <span @click.stop="toPath('/myRanking')" class="right">业绩排行</span>
     </nav>
     <main>
       <div>
@@ -11,7 +11,7 @@
       </div>
       <section>
         <p>销售汇总</p>
-        <div @click.stop="viewSales">
+        <div @click.stop="toPath('/viewSales')">
           <span class="left">鱼类</span>
           <span class="right">¥2,893.81</span>
         </div>
@@ -40,6 +40,8 @@
 
 <script>
   import foot from '../../components/foot';
+  import urls from '../../utils/urls';
+  import http from '../../utils/http';
 
   export default {
     name: "myAchievement",
@@ -51,13 +53,27 @@
       return {}
     },
     methods: {
-      rank() {
-        this.$router.push('/myRanking')
+      toPath(url, data) {
+        if (data) {
+          this.$router.push({path: url, query: {id: data}}); //跳转地址设置
+          return
+        }
+        this.$router.push(url)
       },
-      viewSales() {
-        this.$router.push('/viewSales')
+
+      getSalesAll() {
+        http.get(urls.salesAll, {}).then(res => {
+
+        }).catch(err => {
+
+        })
       }
+
+    },
+    created() {
+      this.getSalesAll();
     }
+
   }
 </script>
 

@@ -6,8 +6,8 @@
       <div>
         <span class="left">我的排名：12</span>
         <span class="right">
-      <span @click.stop="myRank(0)" :class="{bgColor:active == 0}">月排行</span>
-      <span @click.stop="myRank(1)" :class="{bgColor:active == 1}">年排行</span>
+      <span @click.stop="getRank('month')" :class="{bgColor:active == 0}">月排行</span>
+      <span @click.stop="getRank('year')" :class="{bgColor:active == 1}">年排行</span>
       </span>
       </div>
       <section>
@@ -35,6 +35,8 @@
 
 <script>
   import pageNav from '../../components/pageNav'
+  import urls from '../../utils/urls';
+  import http from '../../utils/http';
 
   export default {
     name: "myRanking",
@@ -65,11 +67,24 @@
       }
     },
     methods: {
-      myRank(index) {
-        this.active = index
-      },
+
+
+
+      getRank(type) {  // 查询排名
+        http.get(`${urls.rankType}/${type}`, {}).then(res => {
+
+        }).catch(err => {
+
+        })
+      }
     },
     mounted() {
+      let date = new Date();
+      let Y = date.getFullYear();
+      let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+      let D = date.getDate();
+      console.log(`${Y}-${M}-${D}`);
+      this.getRank('month')
     }
   }
 </script>

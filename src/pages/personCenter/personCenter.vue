@@ -7,36 +7,42 @@
     </nav>
     <main>
       <section v-if="active == 0">
-        <div @click.stop="details" class="list">
-          <p><span class="left">周报</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
-        <div class="list">
-          <p><span class="left">周报</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
+        <template v-for="item in workreportList">
+          <div @click.stop="details(item)" class="list">
+            <p><span class="left">周报</span> <span class="right">¥ {{item.planAmt}}</span></p>
+            <p><span class="left">{{item.startDate | setDate}} - {{item.endDate | setDate}}</span> <span class="right">{{item.isDefault ? '已读' : ' 未读'}}</span>
+            </p>
+          </div>
+        </template>
+
       </section>
 
       <section v-else-if="active == 1">
-        <div class="list">
-          <p><span class="left">月报</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
-        <div class="list">
-          <p><span class="left">月报</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
+
+        <template v-for="item in workreportList">
+          <div @click.stop="details(item)" class="list">
+            <p><span class="left">月报</span> <span class="right">¥ 5750</span></p>
+            <p><span class="left">{{item.startDate}}</span> <span class="right">{{item.isDefault ? '已读' : ' 未读'}}</span>
+            </p>
+
+          </div>
+        </template>
+
       </section>
 
       <section v-else-if="active == 2">
-        <div @click.stop="details" class="list">
-          <p><span class="left">拜访客户</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
-        <div class="list">
-          <p><span class="left">拜访客户</span> <span class="right">¥5750</span></p>
-          <p><span class="left">2020-08-08</span> <span class="right">未读</span></p>
-        </div>
+
+        <!--<template v-if="seaccountList.length > 0">-->
+        <template v-for="item in seaccountList">
+          <div @click.stop="details(item)" class="list">
+            <p><span class="left">{{item.title}}</span> <span class="right">¥ {{item.amount}}</span></p>
+            <p><span class="left">{{item.sedate}}</span> <span class="right">{{item.statusName}}</span></p>
+          </div>
+        </template>
+        <!--</template>-->
+        <!--<template v-else>-->
+        <!--<van-empty description="暂无数据"/>-->
+        <!--</template>-->
       </section>
 
     </main>
@@ -46,7 +52,7 @@
 
 <script>
   import foot from '../../components/foot'
-  import {Grid, GridItem, Image, Button, Cell, Toast, Popup, Icon} from 'vant';
+  import {Grid, GridItem, Image, Button, Cell, Toast, Popup, Icon, Empty} from 'vant';
   import {mapState, mapMutations} from 'vuex'
   import {setSessionStorage, getSessionStorage} from "../../config/Utils";
   import http from "../../utils/http";
@@ -56,6 +62,7 @@
   export default {
     name: "personCenter",
     components: {
+      [Empty.name]: Empty,
       [Popup.name]: Popup,
       [Grid.name]: Grid,
       [GridItem.name]: GridItem,
@@ -69,13 +76,29 @@
     data() {
       return {
         active: 0,
-        title: ['周报', "月报", "我的报销单"]
+        title: ['周报', "月报", "我的报销单"],
+        seaccountList: [], // 报销数据
+        workreportList: [],// 周报 、月报
       }
     },
     computed: {},
     methods: {
       change(index) { // 标题切换
+        // console.log(index)
+        this.workreportList = [];
         this.active = index;
+        switch (index) {
+          case 0:
+            this.workreport(1); // 周报
+            break;
+          case 1:
+            this.workreport(2); // 月报
+            break;
+          case 2:
+            this.seaccount(); // 报销单
+            break;
+        }
+
       },
       toPath() {
         setSessionStorage('active', this.active);
@@ -83,25 +106,53 @@
           case  0:
             this.$router.push({path: '/myWeekly', query: {state: 'add'}});
             break;
+          case  1:
+            this.$router.push({path: '/monthlyReport', query: {state: 'add'}});
+            break;
           case  2:
             this.$router.push({path: '/myReimburse', query: {state: 'add'}});
             break
         }
       },
-      details() { // 查看详情
+      details(item) { // 查看详情
         setSessionStorage('active', this.active);
         switch (this.active) {
           case  0:
-            this.$router.push({path: '/myWeekly', query: {state: 'see'}});
+            this.$router.push({path: '/myWeekly', query: {state: 'see',data:item}});
+            break;
+          case  1:
+            this.$router.push({path: '/monthlyReport', query: {state: 'see',data:item}});
             break;
           case  2:
-            this.$router.push({path: '/myReimburse', query: {state: 'see'}});
+            this.$router.push({path: '/myReimburse', query: {state: 'see',data:item}});
             break
         }
+      },
+      seaccount() { // 查询报销单
+        http.get(urls.seaccount, {}).then(res => {
+          if (res.success) {
+            this.seaccountList = res.data.records || []
+          }
+
+        }).catch(err => {
+
+        })
+      },
+      workreport(type) {
+        http.get(urls.workreport, {type: type}).then(res => {
+          if (res.success) {
+            this.workreportList = res.data.records || []
+          }
+
+        }).catch(err => {
+
+        })
       }
     },
     mounted() {
       getSessionStorage('active') && (this.active = Number(getSessionStorage('active')));
+      this.change(this.active)
+
     }
   }
 </script>

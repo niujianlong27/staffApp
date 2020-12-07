@@ -1,21 +1,21 @@
 <template>
   <div class="home">
     <nav>
-      <span class="left">我的客户  <van-icon @click.stop="toPath" size="20" name="add"/></span>
+      <span class="left">我的客户  <van-icon @click.stop="toPath('/addCustomer')" size="20" name="add"/></span>
       <span @click.stop="show = true" class="right">筛选</span>
     </nav>
     <main>
-      <p>我的客户消费情况（截止本月16日）</p>
+      <p>我的客户消费情况（截止本月{{nowDay}}日）</p>
 
       <section>
-        <div  @click.stop="details" class="kehu" v-for="(item) in rankList">
+        <div @click.stop="toPath('/customerDetail',item.id)" class="kehu" v-for="(item) in customerList">
           <div>
             <img style="height: 50px"
                  src="../../assets/touxiang.png" alt="">
           </div>
           <div>
-            <p><span class="left">{{item.nick_name}}</span> <span class="right">当月： +￥100</span></p>
-            <p><span class="left">1928192871</span> <span class="right">累计： ￥128391</span></p>
+            <p><span class="left">{{item.nick_name}}</span> <span class="right">当月： +￥{{item.monthprice}}</span></p>
+            <p><span class="left">{{item.mobile}}</span> <span class="right">累计： ￥{{item.totalprice}}</span></p>
           </div>
         </div>
       </section>
@@ -27,7 +27,7 @@
                position="top" :style="{ height: '43%' }" v-model="show">
       <h3>客户身份</h3>
       <div>
-        <van-grid :gutter="10" :border="false" :column-num="3">
+        <van-grid :gutter="10" :border="false" :column-num="4">
           <van-grid-item :class="{areaIndex :idIndex == index}" @click.stop="idIndex = index"
                          v-for="(item,index) in type" :key="item">
             {{item}}
@@ -37,16 +37,27 @@
 
       <h3>我的区域</h3>
       <div>
-        <van-grid :gutter="10" :border="false" :column-num="3">
-          <van-grid-item :class="{areaIndex :areaIndex == index}" @click.stop="areaIndex = index"
-                         v-for="(item,index) in type"
-                         :key="item">
-            {{item}}
-          </van-grid-item>
-        </van-grid>
+        <van-field
+          readonly
+          clickable
+          @clear
+          name="area"
+          v-model="areaName"
+          label="区域"
+          placeholder="请选择区域"
+          @click="showPicker = true"
+          :error="false"
+        />
+
+        <van-popup v-model="showPicker" position="bottom">
+          <van-area @cancel="showPicker = false" @confirm="pickConfirm($event)" title="标题"
+                    :area-list="areaList"
+                    :columns-num="3"/>
+        </van-popup>
+
       </div>
 
-      <van-button color="#00133A" block type="info" native-type="submit">
+      <van-button @click="Submit" color="#00133A" block type="info">
         确认选择
       </van-button>
     </van-popup>
@@ -57,15 +68,18 @@
 </template>
 
 <script>
-  import {Popup, Notify, Icon, Grid, GridItem, Button} from 'vant';
+  import {Popup, Notify, Field, Icon, Area, Grid, GridItem, Button} from 'vant';
   import foot from '../../components/foot';
   import urls from '../../utils/urls';
   import http from '../../utils/http';
   import {mapState, mapActions} from 'vuex'
+  import areaList from '../../../static/Area'
 
   export default {
     components: {
       foot,
+      [Area.name]: Area,
+      [Field.name]: Field,
       [Icon.name]: Icon,
       [Grid.name]: Grid,
       [Popup.name]: Popup,
@@ -75,27 +89,64 @@
     },
     data() {
       return {
+        areaName: '',  // 区域名称
+        showPicker: false, // 显示选择区域
         show: false,// 弹出层
         idIndex: null, // 身份索引
         areaIndex: null,// 区域索引
-        rankList: [
-          {rank_no: 1, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "赵"},
-          {rank_no: 2, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "钱"},
-          {rank_no: 3, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "孙"},
-          {rank_no: 4, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "李"},
-          {rank_no: 5, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "周"},
-          {rank_no: 6, rebate_amount_total: 200.0, id_user: 8, is_self: 0, nick_name: "吴"},
-        ],
-        type: ['酒店', '批发', '乡厨']
+        customerList: [],// 客户集合
+        areaList: areaList,
+        type: ['酒店', '批发', '乡厨', '消费者'],
+        nowDay: '', // 当前日期
       }
     },
     methods: {
-      toPath() {
-        this.$router.push('/addCustomer')
+
+      toPath(url, data) {
+        if (data) {
+          this.$router.push({path: url, query: {id: data}}); //跳转地址设置
+          return
+        }
+        this.$router.push(url)
       },
-      details() {
-        this.$router.push('/customerDetail')
+
+      pickConfirm(values) {
+        this.areaName = `${values[0].name}${values[1].name}${values[2].name}`;
+        this.showPicker = false;
       },
+
+      getInfoByStaff(params) { // 查询客户
+        http.get(urls.getInfoByStaff, params).then(res => {
+          if (res.success) {
+            this.customerList = res.data
+          }
+
+        }).catch(err => {
+
+        })
+      },
+
+      Submit() { // 筛选
+        let params = {
+          area: this.areaName,
+          type: this.idIndex + 1,
+        };
+        this.show = false;
+        this.getInfoByStaff(params);
+      }
+
+
+    },
+    created() {
+      let date = new Date();
+      // let Y = date.getFullYear();
+      // let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+      let D = date.getDate();
+      this.nowDay = D;
+      this.getInfoByStaff({})
+    },
+    mounted() {
+
     }
 
   }
@@ -152,9 +203,9 @@
         }
       }
     }
-    /deep/ .van-popup {
+    > /deep/ .van-popup {
       box-sizing: border-box;
-      padding:10px 30px;
+      padding: 10px 30px;
       background-color: #2B354C;
       /deep/ .van-grid-item__content {
         background: #8A919F;
@@ -165,6 +216,15 @@
       .van-button {
         margin-top: 40px;
       }
+    }
+    /deep/ .van-field__label {
+      color: white;
+    }
+    /deep/ .van-field__control {
+      color: white;
+    }
+    .van-cell {
+      background-color: #2B354C;
     }
     .areaIndex {
       /deep/ .van-grid-item__content {

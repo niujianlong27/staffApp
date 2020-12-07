@@ -5,9 +5,9 @@
 
       <template v-if="state  == 'see'">
         <section>
-          <p>报销事由：拜访客户</p>
-          <p>报销金额：¥300</p>
-          <p>报销时间：2020-08-09</p>
+          <p>报销事由：{{obj.title}}</p>
+          <p>报销金额：¥ {{obj.amount}}</p>
+          <p>报销时间：{{obj.sedate}}</p>
           <p>报销凭证</p>
         </section>
       </template>
@@ -29,6 +29,20 @@
               >
               </van-field>
             </template>
+
+            <template v-if="item.type == 'calendar'">
+              <van-field :border="false"
+                         :value="item.value"
+                         :required="item.required"
+                         :name="item.eName"
+                         :label="item.cName"
+                         :placeholder="item.placeholder"
+                         @click="item.showPicker = true"/>
+
+              <van-calendar v-model="item.showPicker" :min-date="item.minDate" :max-date="item.maxDate"
+                            @confirm="onConfirm($event,item)"/>
+            </template>
+
 
             <template v-if="item.type == 'uploader'">
               <van-field :border="false" :required="item.required" :name="item.eName" :rules="item.rule"
@@ -56,12 +70,15 @@
 
 <script>
   import pageNav from '../../components/pageNav'
-  import {Form, Field, Button, Toast, Uploader} from 'vant';
+  import {Form, Field, Calendar, Button, Toast, Uploader} from 'vant';
+  import urls from '../../utils/urls';
+  import http from '../../utils/http';
 
   export default {
     name: "myReimburse",
     components: {
       pageNav,
+      [Calendar.name]: Calendar,
       [Form.name]: Form,
       [Field.name]: Field,
       [Toast.name]: Toast,
@@ -76,7 +93,7 @@
         fromData: [
           {
             cName: '报销事由',
-            eName: 'nikeName',
+            eName: 'title',
             type: 'text',
             value: '',
             required: false,
@@ -85,7 +102,7 @@
           },
           {
             cName: '报销金额',
-            eName: 'nikeName',
+            eName: 'amount',
             type: 'text',
             value: '',
             required: false,
@@ -94,36 +111,75 @@
           },
           {
             cName: '报销时间',
-            eName: 'nikeName',
-            type: 'text',
+            eName: 'sedate',
+            type: 'calendar',
             value: '',
+            minDate: new Date(2020, 0, 1),
+            maxDate: new Date(),
+            showPicker: false,
             required: false,
-            placeholder: '请输入报销时间',
-            rule: [{required: true, message: '请输入报销时间'}]
+            placeholder: '请选择报销时间',
+            rule: [{required: true, message: '请选择报销时间'}]
           },
 
           {
             required: false,
             cName: '报销凭证',
-            eName: 'idcard',
+            eName: 'certificate',
             type: 'uploader',
             value: [],
             placeholder: '请上传报销凭证',
-            rule: [{required: true, message: '请上传报销凭证'}]
+            rule: [{required: false, message: '请上传报销凭证'}]
           },
 
-        ]
+        ],
+        obj: {},
       }
     },
     methods: {
-      addReimburse() { // 提交
+      addReimburse(value) { // 提交
+        value.certificate = '122';
 
+        http.post(urls.addSeaccount, value).then(res => {
+          if (res.success){
+
+          }
+
+        }).catch(err => {
+
+        })
       },
       afterRead(item) {
 
-      }
+        if (item.value.length > 0) {
+          let files = item.value[0].file;
+          // let formData = new FormData();
+          // for (var key in files) {
+          //   formData.append(key, files[key])
+          // }
+          // formData.append('file', files);
+          //
+          // console.log(formData);
+          // http.post(urls.addWorkreport, formData).then(res => {
+          //
+          // }).catch(err => {
+          //
+          // })
+        }
+
+
+      },
+      onConfirm(date, item) { // 时间选择
+
+        let Y = date.getFullYear() + '-';
+        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        let D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + '';
+        item.value = `${Y}${ M}${D}`;
+        item.showPicker = false;
+      },
     },
     created() {
+      this.obj = this.$route.query.data;
       this.state = this.$route.query.state;
       this.title = this.state === 'see' ? '报销单' : '申请报销';
     },
@@ -160,6 +216,13 @@
       .van-button {
         font-size: 16px;
         margin-top: 70px;
+      }
+      /deep/ .van-calendar__day {
+        color: black;
+      }
+
+      /deep/ .van-calendar__header {
+        color: black;
       }
     }
   }

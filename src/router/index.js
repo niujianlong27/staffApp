@@ -70,20 +70,20 @@ const router = new Router({
       component: home,
       meta: {
         title: '首页',
-        keepAlive: true
+        // keepAlive: true
       }
     },
     {
-      path: '/addCustomer', // 首页
+      path: '/addCustomer', // 添加客户
       name: "addCustomer",
       component: addCustomer,
       meta: {
-        title: '首页',
-        keepAlive: true
+        title: '添加客户',
+        keepAlive: false
       }
     },
     {
-      path: '/customerDetail', // 首页
+      path: '/customerDetail', // 客户消费详情
       name: "customerDetail",
       component: customerDetail,
       meta: {

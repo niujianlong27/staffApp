@@ -11,7 +11,7 @@
       <div class="line" id="line" :style="{width: '335px', height: '260px',margin: '10px auto 0'}"></div>
       <div class="scroll">
         <van-grid class="grid" :gutter="8" :border="false" :column-num="20">
-          <van-grid-item v-for="(item,index) in 3" :key="index">
+          <van-grid-item @click="click($event)" v-for="(item,index) in 3" :key="index">
             <span class="title">七月份</span>
             <span class="brief-in">￥ 4433</span>
             <span class="brief">0.022534</span>
@@ -30,7 +30,6 @@
         <p><span class="left">1928192871</span></p>
         </div>
         </div>
-        <!--require('../../assets/touxiang.png')-->
 
       </section>
 
@@ -69,6 +68,9 @@
     methods: {
       myRank(index) {
         this.active = index
+      },
+      click(i){
+        console.log(i)
       },
       drawLine() {
         // 为charts选定父容器并初始化charts画布

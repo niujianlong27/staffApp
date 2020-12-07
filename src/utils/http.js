@@ -102,8 +102,8 @@ export default {
       axios.get(url, {
         params: params,
       }).then(response => {
-          resolve(response.data);
-        })
+        resolve(response.data);
+      })
         .catch(err => {
           reject(err)
         })
@@ -119,22 +119,28 @@ export default {
         })
     })
   },
-  post2: function (url, data) {
+  formPost: function (url, data) {
+    let formData = new FormData();
+    for (let it in param) {
+      formData.append(it, param[it]);
+    }
     return new Promise((resolve, reject) => {
-      axios.post(url, data, {headers: {
-            'Content-Type': 'multipart/form-data'
-          }}).then(response => {
-          resolve(response.data);
-        }, err => {
-          console.log(err);
-          reject(err)
-        })
+      axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(response => {
+        resolve(response.data);
+      }, err => {
+        console.log(err);
+        reject(err)
+      })
     })
   },
   delete: function (url, data) {
     return new Promise((resolve, reject) => {
       axios.delete(url,
-        {data:data})
+        {data: data})
         .then(response => {
           resolve(response.data);
         }, err => {

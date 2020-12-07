@@ -19,7 +19,6 @@
         </template>
       </template>
 
-
     </main>
     <foot></foot>
 
@@ -114,7 +113,7 @@
         }
       }
     }
-    .van-empty {
+    .van-loading , .van-empty {
       background-color: #111622;
     }
   }
