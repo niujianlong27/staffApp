@@ -9,7 +9,7 @@
           <p>任务完成：{{obj.finishAmt}}</p>
           <p>市场情况：{{obj.description}}</p>
           <p>实施方案：{{obj.program}}</p>
-          <p>下周计划：{{obj.nextPlanmyWeekly.vue}}</p>
+          <p>下周计划：{{obj.nextPlan}}</p>
         </section>
       </template>
 
