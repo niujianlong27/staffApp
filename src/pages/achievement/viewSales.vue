@@ -9,15 +9,13 @@
       </span>
       </div>
       <div class="line" id="line" :style="{width: '335px', height: '260px',margin: '10px auto 0'}"></div>
-      <div class="scroll">
-        <van-grid class="grid" :gutter="8" :border="false" :column-num="20">
-          <van-grid-item @click="click($event)" v-for="(item,index) in 3" :key="index">
-            <span class="title">七月份</span>
+        <van-grid class="grid" :border="false" :column-num="1">
+          <van-grid-item  v-for="(item,index) in 1" :key="index">
+            <span @click="click()" class="title">七月份</span>
             <span class="brief-in">￥ 4433</span>
             <span class="brief">0.022534</span>
           </van-grid-item>
         </van-grid>
-      </div>
       <section>
         <p>我的客户消费情况（截止本月16日）</p>
         <div @click.stop="details" class="kehu" v-for="(item) in rankList">
@@ -69,8 +67,8 @@
       myRank(index) {
         this.active = index
       },
-      click(i){
-        console.log(i)
+      click(){
+        console.log(12)
       },
       drawLine() {
         // 为charts选定父容器并初始化charts画布
@@ -162,14 +160,11 @@
     }
   }
 
-  .scroll {
-    text-align: left;
-    overflow-x: scroll;
     .grid {
-      min-width: 715px !important;
+      text-align: left;
       span {
+        width: 100%;
         display: block;
-        width: 210px;
         margin: 2px 0;
         white-space: nowrap;
         overflow: hidden;
@@ -179,6 +174,7 @@
       /deep/ .van-grid-item__content {
         background-color: #1C2333;
         border-top: 1px solid #3190e8;
+        padding-left: 20px;
       }
     }
 
@@ -191,11 +187,11 @@
       @include sc(20px, #fff);
     }
     .brief {
-      @include sc(12px, #6D778B);
+      @include sc(14px, #6D778B);
       padding-left: 10px;
       box-sizing: border-box;
     }
-  }
+
 
   .imgdiv {
     margin: 10px 0;

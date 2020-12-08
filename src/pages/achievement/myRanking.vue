@@ -6,8 +6,8 @@
       <div>
         <span class="left">我的排名：12</span>
         <span class="right">
-      <span @click.stop="getRank('month')" :class="{bgColor:active == 0}">月排行</span>
-      <span @click.stop="getRank('year')" :class="{bgColor:active == 1}">年排行</span>
+      <span @click.stop="getRank(0,'month')" :class="{bgColor:active == 0}">月排行</span>
+      <span @click.stop="getRank(1,'year')" :class="{bgColor:active == 1}">年排行</span>
       </span>
       </div>
       <section>
@@ -63,14 +63,16 @@
           {
             img: require('../../assets/no3.png'),
           }
-        ]
+        ],
+        category: {}, // 销售汇总
+        area: {}, // 区域汇总
       }
     },
     methods: {
 
 
-
-      getRank(type) {  // 查询排名
+      getRank(index, type) {  // 查询排名
+        this.active = index;
         http.get(`${urls.rankType}/${type}`, {}).then(res => {
 
         }).catch(err => {
@@ -84,7 +86,7 @@
       let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
       let D = date.getDate();
       console.log(`${Y}-${M}-${D}`);
-      this.getRank('month')
+      this.getRank(0, 'month')
     }
   }
 </script>

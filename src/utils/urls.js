@@ -13,6 +13,8 @@ export default {
   addWorkreport: `tonginfo/performana/workreport`, // 新增周报、月报
   addSeaccount: `tonginfo/staff/seaccount`, // 新增报销单
   upload: `tonginfo/file/upload/base64`, // 图片上传
+
+
   // loginByPass: `${environment.appUrl}staff/getInfoByStaff`, // 登录
 
 
