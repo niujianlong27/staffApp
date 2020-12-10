@@ -44,9 +44,21 @@ Vue.filter('setImg', function (value) {
 });
 
 Vue.filter('fixNum', function (value) {
-  if (value && !isNaN(value)) {
-    let realVal = Math.round((parseFloat(Number(value)) + Number.EPSILON) * 100) / 100;
-    return realVal
+
+  if (value && !isNaN(value)) { // 判断是否是数字 ，字符串数字、数字false
+    let num = Number(value).toString();
+    let newVal = "";
+    if (num % 1 == 0) {//整数
+      newVal = num + "." + '0'.padEnd(2, '0'); // 小数点后0不足3位，补足
+    } else {//小数
+      let num1 = num.split(".");
+      if (num1[1].length < 2) {
+        newVal = num1[0] + "." + num1[1].padEnd(2, '0')
+      } else {
+        newVal = num1[0] + "." + num1[1].substring(0, 2)// 超出3位剪切
+      }
+    }
+    return newVal;
   }
   return 0
 });

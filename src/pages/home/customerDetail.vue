@@ -3,7 +3,7 @@
     <page-nav :title="'客户消费详情'"></page-nav>
     <main>
       <div class="imgdiv">
-        <span class="textLeft">￥ <span> 3422</span></span>
+        <span class="textLeft">￥ <span> {{month.monthTotal}}</span></span>
         <span class="textRight">
         <img height="100%" src="../../assets/touxiang.png" alt="">
       </span>
@@ -54,13 +54,14 @@
       return {
         orderList: [],
         Day: '',  // 日期
+        month: {},
       }
     },
     methods: {
       myRank(index) {
         this.active = index
       },
-      drawLine() {
+      drawLine(dayData,priceData) {
         // 为charts选定父容器并初始化charts画布
         let myChart = this.$echarts.init(document.getElementById('line'), 'dark');
         // 为图表添加数据
@@ -79,8 +80,9 @@
           color: ["#8094BD"],
           grid: {show: true, left: 60},
           xAxis: {
+            name: '号',
             type: 'category',
-            data: [1, 2],
+            data:dayData,
             axisLine: {
               lineStyle: {color: '#8094BD'}
             },
@@ -90,11 +92,12 @@
             name: '元',
             type: 'value',
             axisLine: {
-              lineStyle: {color: '#8094BD'}
-            }
+              lineStyle: {color: '#8094BD'},
+            },
           },
+
           series: [{
-            data: [820, 932],
+            data: priceData,
             type: 'line'
           }]
         })
@@ -112,7 +115,15 @@
         };
         http.get(urls.shopUser, params).then(res => {
           if (res.success) {
-            this.orderList = res.data.orderList || [];
+            this.month = res.data.month;
+            this.orderList = res.data.orders || [];
+            let dayData = [];
+            let priceData = [];
+            res.data.day.forEach(item => {
+              dayData.push(Number(item["DATE_FORMAT(so.pay_time,'%Y-%m-%d')"].split('-')[2]))
+              priceData.push(item.dayTotal)
+            });
+            this.drawLine(dayData,priceData)
           }
 
         }).catch(err => {
@@ -121,7 +132,6 @@
       }
     },
     mounted() {
-      this.drawLine()
     },
     created() {
       this.shopUser()

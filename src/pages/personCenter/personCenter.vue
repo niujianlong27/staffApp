@@ -21,8 +21,8 @@
 
         <template v-for="item in workreportList">
           <div @click.stop="details(item)" class="list">
-            <p><span class="left">月报</span> <span class="right">¥ 5750</span></p>
-            <p><span class="left">{{item.startDate}}</span> <span class="right">{{item.isDefault ? '已读' : ' 未读'}}</span>
+            <p><span class="left">月报</span> <span class="right">¥ {{item.planAmt}}</span></p>
+            <p><span class="left">{{item.startDate | setDate}} - {{item.endDate | setDate}}</span> <span class="right">{{item.isDefault ? '已读' : ' 未读'}}</span>
             </p>
 
           </div>

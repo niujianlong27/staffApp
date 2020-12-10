@@ -88,6 +88,7 @@ const router = new Router({
       component: customerDetail,
       meta: {
         title: '客户消费详情',
+
       }
     },
 

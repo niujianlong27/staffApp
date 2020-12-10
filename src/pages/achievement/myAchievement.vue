@@ -6,8 +6,8 @@
     </nav>
     <main>
       <div>
-        <p>￥ <span>8391.00</span></p>
-        <span>奖励：¥200.00</span>
+        <p>￥ <span>{{total.sales | fixNum}}</span></p>
+        <span>奖励：¥ {{total.reward | fixNum}}</span>
       </div>
       <section>
         <p>销售汇总</p>
@@ -50,7 +50,11 @@
     },
 
     data() {
-      return {}
+      return {
+        total: {}, // 奖励、销售额
+        area: {}, //区域会中
+        category: {},// 销售汇总
+      }
     },
     methods: {
       toPath(url, data) {
@@ -63,6 +67,11 @@
 
       getSalesAll() {
         http.get(urls.salesAll, {}).then(res => {
+          if (res.success) {
+            this.total = res.data.total;
+            this.area = res.data.area;
+            this.category = res.data.category;
+          }
 
         }).catch(err => {
 
@@ -71,6 +80,10 @@
 
     },
     created() {
+      this.getSalesAll();
+    },
+
+    activated() {
       this.getSalesAll();
     }
 

@@ -22,8 +22,8 @@
             </template>
           </div>
           <div>
-            <p><span class="left">李四</span> <span class="right">¥4750,70</span></p>
-            <p><span class="left">截止到2020-08-26</span> <span class="right">330单</span></p>
+            <p><span class="left">李四</span> <span class="right">¥ {{item.amount}}</span></p>
+            <p><span class="left">截止到 {{item.lastRecordTime | setDate}}</span> <span class="right">330单</span></p>
           </div>
         </div>
       </section>
@@ -74,6 +74,9 @@
       getRank(index, type) {  // 查询排名
         this.active = index;
         http.get(`${urls.rankType}/${type}`, {}).then(res => {
+          if (res.success){
+            this.rankList = res.data[type];
+          }
 
         }).catch(err => {
 
