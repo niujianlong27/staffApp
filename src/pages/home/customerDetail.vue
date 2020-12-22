@@ -8,7 +8,7 @@
         <img height="100%" src="../../assets/touxiang.png" alt="">
       </span>
       </div>
-      <div class="line" id="line" :style="{width: '335px', height: '260px',margin: '10px auto 0'}"></div>
+      <div class="line" id="line" :style="{width: '335px', height: '280px',margin: '10px auto 0'}"></div>
 
       <section>
         <p>此客户的订单（截止本月{{Day}}日）</p>
@@ -80,7 +80,7 @@
           color: ["#8094BD"],
           grid: {show: true, left: 60},
           xAxis: {
-            name: '号',
+            name: '日',
             type: 'category',
             data:dayData,
             axisLine: {
@@ -120,7 +120,7 @@
             let dayData = [];
             let priceData = [];
             res.data.day.forEach(item => {
-              dayData.push(Number(item["DATE_FORMAT(so.pay_time,'%Y-%m-%d')"].split('-')[2]))
+              dayData.push(Number(item["DATE_FORMAT(so.pay_time,'%Y-%m-%d')"].split('-')[2]));
               priceData.push(item.dayTotal)
             });
             this.drawLine(dayData,priceData)

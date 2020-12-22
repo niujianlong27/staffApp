@@ -84,7 +84,6 @@
     computed: {},
     methods: {
       change(index) { // 标题切换
-        // console.log(index)
         this.workreportList = [];
         this.active = index;
         switch (index) {
@@ -133,12 +132,11 @@
           if (res.success) {
             this.seaccountList = res.data.records || []
           }
-
         }).catch(err => {
 
         })
       },
-      workreport(type) {
+      workreport(type) { // 查询月报
         http.get(urls.workreport, {type: type}).then(res => {
           if (res.success) {
             this.workreportList = res.data.records || []
@@ -152,7 +150,6 @@
     mounted() {
       getSessionStorage('active') && (this.active = Number(getSessionStorage('active')));
       this.change(this.active)
-
     }
   }
 </script>
@@ -177,7 +174,6 @@
         padding: 5px 0;
         .van-icon {
           top: 2px;
-          /*margin-left: 5px;*/
         }
       }
       .spanBorder {

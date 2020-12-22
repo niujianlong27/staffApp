@@ -8,7 +8,7 @@
         <img height="100%" src="../../assets/touxiang.png" alt="">
       </span>
       </div>
-      <div class="line" id="line" :style="{width: '335px', height: '260px',margin: '10px auto 0'}"></div>
+      <div class="line" id="line" :style="{width: '335px', height: '280px',margin: '10px auto 0'}"></div>
       <van-grid class="grid" :border="false" :column-num="1">
         <van-grid-item v-for="(item,index) in 1" :key="index">
           <span @click="popupShow = true" class="title">七月份</span>
