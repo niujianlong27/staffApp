@@ -12,6 +12,7 @@ import myAchievement from '../pages/achievement/myAchievement'
 import myRanking from '../pages/achievement/myRanking'
 
 import personCenter from '../pages/personCenter/personCenter'
+import dayReport from '../pages/personCenter/dayReport'
 import myWeekly from '../pages/personCenter/myWeekly'
 import monthlyReport from '../pages/personCenter/monthlyReport'
 import myReimburse from '../pages/personCenter/myReimburse'
@@ -60,7 +61,7 @@ const router = new Router({
     //地址为空时跳转home页面
     {
       path: '',
-      redirect: '/signIn',
+      redirect: '/home',
     },
     //地址为空时跳转home页面
     //首页商城列表页
@@ -135,6 +136,14 @@ const router = new Router({
       }
     },
     {
+      path: '/dayReport', // 日报
+      name: "dayReport",
+      component: dayReport,
+      meta: {
+        title: '日报'
+      }
+    },
+    {
       path: '/myWeekly', // 周报
       name: "myWeekly",
       component: myWeekly,
@@ -142,6 +151,8 @@ const router = new Router({
         title: '周报'
       }
     },
+
+
     {
       path: '/monthlyReport', // 月报
       name: "monthlyReport",
@@ -150,6 +161,8 @@ const router = new Router({
         title: '月报'
       }
     },
+
+
     {
       path: '/myReimburse', // 月报
       name: "myReimburse",
@@ -179,6 +192,18 @@ router.beforeEach((to, from, next) => {
       removeSessionStorage('active')
     }
   }
+
+  if (getlocalStorage('token') && from.name != null &&  to.path == '/signIn') {
+    window.plus && plus.runtime.quit(); //有token 并且要去注册或登录页面那么就退出app
+    return
+  }
+
+
+  if (!getlocalStorage('token') && from.path == '/signIn') {
+    window.plus && plus.runtime.quit(); //没有token   并且那么就退出app
+    return
+  }
+
   const title = to.meta && to.meta.title;
   if (title) {
     document.title = title;

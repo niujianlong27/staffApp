@@ -16,6 +16,7 @@ axios.defaults.withCredentials = true;//让axios携带cookie
 
 //设置post请求是的header信息
 axios.defaults.headers.post['Content-Type'] = 'application/json';
+
 // axios.defaults.transformRequest = [function (data) {
 //   let ret = '';
 //   for (let it in data) {
@@ -24,6 +25,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 //   console.log(ret);
 //   return ret
 // }];
+
 // //http request 拦截器
 axios.interceptors.request.use( // 请求数据设置
   config => {
@@ -48,7 +50,6 @@ axios.interceptors.response.use( // 响应数据设置
     return response
   },
   error => {
-    console.log(error.response)
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -63,23 +64,21 @@ axios.interceptors.response.use( // 响应数据设置
         case 500:
           if (error.response.data.message) {
             if (error.response.data.message.indexOf('relogin') > -1) {
-              removelocalStorage("token");
-              removelocalStorage("userInfo");
-              // router.push({
-              //   path: '/signIn',
-              // });
-              return Promise.reject(error.response.data.message)
-            } else if (error.response.data.message.indexOf('该手机号已经绑定其他微信号') > -1) {
-              removelocalStorage("token");
-              removelocalStorage("userInfo");
-              Toast.fail(error.response.data.message);
+              // removelocalStorage("token");
+              // removelocalStorage("userInfo");
               // router.push({
               //   path: '/signIn',
               // });
               return Promise.reject(error.response.data.message)
             } else {
+              // removelocalStorage("token");
+              // removelocalStorage("userInfo");
+              // router.push({
+              //   path: '/signIn',
+              // });
               Toast.fail(error.response.data.message);
-              return Promise.reject(error.response.data.message)
+              return Promise.reject(error.response.data.message);
+
             }
           }
           break;

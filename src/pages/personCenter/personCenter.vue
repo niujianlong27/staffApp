@@ -4,9 +4,22 @@
 
       <span @click="change(index)" v-for="(item,index) in title" :class="{spanBorder:active == index}">{{item}}</span>
       <span><van-icon @click.stop="toPath" size="20" name="add"/></span>
+      <span class="right">
+        <van-icon @click.stop="showPopup" size="20" name="setting-o"/>
+      </span>
     </nav>
     <main>
       <section v-if="active == 0">
+        <template v-for="item in workreportList">
+          <div @click.stop="details(item)" class="list">
+            <p><span class="left">日报</span> <span class="right">¥ {{item.planAmt}}</span></p>
+            <p><span class="left">{{item.startDate | setDate}} - {{item.endDate | setDate}}</span> <span class="right">{{item.isDefault ? '已读' : ' 未读'}}</span>
+            </p>
+          </div>
+        </template>
+
+      </section>
+      <section v-else-if="active == 1">
         <template v-for="item in workreportList">
           <div @click.stop="details(item)" class="list">
             <p><span class="left">周报</span> <span class="right">¥ {{item.planAmt}}</span></p>
@@ -17,7 +30,7 @@
 
       </section>
 
-      <section v-else-if="active == 1">
+      <section v-else-if="active == 2">
 
         <template v-for="item in workreportList">
           <div @click.stop="details(item)" class="list">
@@ -30,7 +43,7 @@
 
       </section>
 
-      <section v-else-if="active == 2">
+      <section v-else-if="active == 3">
 
         <!--<template v-if="seaccountList.length > 0">-->
         <template v-for="item in seaccountList">
@@ -47,6 +60,17 @@
 
     </main>
     <foot></foot>
+    <van-popup position="right" :style="{ height: '100%',width:'35%' }" v-model="show">
+      <p class="signOut"><span @click="signOut">退出登录</span></p>
+    </van-popup>
+
+    <van-popup class="popup" v-model="show2">
+      <p style="text-align: center;font-size: 18px">确认登出？</p>
+      <van-button @click.stop="cancel()" type="primary">取消</van-button>
+      <van-button @click.stop="loginOut()" type="info">确认</van-button>
+    </van-popup>
+
+
   </div>
 </template>
 
@@ -54,7 +78,7 @@
   import foot from '../../components/foot'
   import {Grid, GridItem, Image, Button, Cell, Toast, Popup, Icon, Empty} from 'vant';
   import {mapState, mapMutations} from 'vuex'
-  import {setSessionStorage, getSessionStorage} from "../../config/Utils";
+  import {setSessionStorage, removelocalStorage,getSessionStorage} from "../../config/Utils";
   import http from "../../utils/http";
   import urls from '../../utils/urls';
 
@@ -64,10 +88,11 @@
     components: {
       [Empty.name]: Empty,
       [Popup.name]: Popup,
+      [Button.name]: Button,
+
       [Grid.name]: Grid,
       [GridItem.name]: GridItem,
       [Image.name]: Image,
-      [Button.name]: Button,
       [Cell.name]: Cell,
       [Icon.name]: Icon,
       [Toast.name]: Toast,
@@ -75,25 +100,58 @@
     },
     data() {
       return {
+        show: false, // 退出控制
+        show2: false, // 确认退出
         active: 0,
-        title: ['周报', "月报", "我的报销单"],
+        title: ['日报', '周报', "月报", "我的报销单"],
         seaccountList: [], // 报销数据
         workreportList: [],// 周报 、月报
       }
     },
     computed: {},
     methods: {
+      signOut() {
+        this.show2 = true;
+      },
+
+      showPopup() { // 点击设置按钮
+        this.show = true;
+      },
+
+      cancel() {
+        this.show = false;
+        this.show2 = false;
+      },
+      loginOut() { //退出
+        http.post(urls.logout, {}).then(res => {
+          if (res.success) {
+            console.log()
+            removelocalStorage("token");
+            removelocalStorage("userInfo");
+            Toast.success('退出成功！');
+            this.$router.push('/signIn')
+          }
+
+        }).catch(err => {
+
+        })
+
+      },
+
       change(index) { // 标题切换
         this.workreportList = [];
         this.active = index;
         switch (index) {
           case 0:
-            this.workreport(1); // 周报
+            this.workreport(3); // 日报
             break;
           case 1:
-            this.workreport(2); // 月报
+            this.workreport(1); // 周报
             break;
           case 2:
+            this.workreport(2); // 月报
+            break;
+          case 3:
             this.seaccount(); // 报销单
             break;
         }
@@ -103,12 +161,15 @@
         setSessionStorage('active', this.active);
         switch (this.active) {
           case  0:
-            this.$router.push({path: '/myWeekly', query: {state: 'add'}});
+            this.$router.push({path: '/dayReport', query: {state: 'add'}});
             break;
           case  1:
-            this.$router.push({path: '/monthlyReport', query: {state: 'add'}});
+            this.$router.push({path: '/myWeekly', query: {state: 'add'}});
             break;
           case  2:
+            this.$router.push({path: '/monthlyReport', query: {state: 'add'}});
+            break;
+          case  3:
             this.$router.push({path: '/myReimburse', query: {state: 'add'}});
             break
         }
@@ -117,13 +178,16 @@
         setSessionStorage('active', this.active);
         switch (this.active) {
           case  0:
-            this.$router.push({path: '/myWeekly', query: {state: 'see',data:item}});
+            this.$router.push({path: '/dayReport', query: {state: 'see', data: item}});
             break;
           case  1:
-            this.$router.push({path: '/monthlyReport', query: {state: 'see',data:item}});
+            this.$router.push({path: '/myWeekly', query: {state: 'see', data: item}});
             break;
           case  2:
-            this.$router.push({path: '/myReimburse', query: {state: 'see',data:item}});
+            this.$router.push({path: '/monthlyReport', query: {state: 'see', data: item}});
+            break;
+          case  3:
+            this.$router.push({path: '/myReimburse', query: {state: 'see', data: item}});
             break
         }
       },
@@ -162,22 +226,26 @@
     main {
       background-color: #111622;
     }
-    padding: 0 20px;
+    padding: 0 15px;
     box-sizing: border-box;
     nav {
-      display: flex;
+      line-height: 35px;
+      text-align: left;
       margin: 10px 0 20px;
       color: #DEE9FF;
-      text-align: left;
       span {
+        display: inline-block;
         margin-right: 20px;
         padding: 5px 0;
         .van-icon {
-          top: 2px;
+          top: 5px;
         }
       }
       .spanBorder {
         border-bottom: 2px solid #DEE9FF;
+      }
+      .right {
+        margin: 0;
       }
     }
     .list {
@@ -197,6 +265,31 @@
         @include sc(13px, #6D778B)
       }
     }
+
+    .signOut {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #000;
+    }
+    .popup {
+      width: 60%;
+      padding: 10px;
+      border-radius: 5px;
+      p {
+        text-align: left;
+        padding: 0 5px;
+        margin: 8px 0;
+        @include sc(13px, #323233)
+      }
+      .van-button {
+        margin-top: 10px;
+        padding: 0 8px;
+        @include wh(100px, 30px);
+      }
+    }
+
   }
 
 </style>
