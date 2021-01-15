@@ -15,8 +15,6 @@ export default {
   addSeaccount: `tonginfo/staff/seaccount`, // 新增报销单
   upload: `tonginfo/file/upload/base64`, // 图片上传
 
-
-
   // login: `${environment.appUrl}login`, // 登录
   // logout: `${environment.appUrl}logout`, // 登出
   // noticeQueryByUser: `${environment.appUrl}staff/notice/queryByUser`, // 查询消息
@@ -30,7 +28,5 @@ export default {
   // addWorkreport: `${environment.appUrl}performana/workreport`, // 新增周报、月报
   // addSeaccount: `${environment.appUrl}staff/seaccount`, // 新增报销单
   // upload: `${environment.appUrl}file/upload/base64`, // 图片上传
-
-
 }
 

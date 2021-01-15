@@ -5,14 +5,14 @@
     <!--<router-view class="Router"></router-view>-->
     <!--</transition>-->
 
-     这里是需要keepalive的
+    <!--这里是需要keepalive的-->
     <keep-alive>
-    <router-view  class="Router" v-if="$route.meta.keepAlive"></router-view>
+      <router-view class="Router" v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
 
     <!-- 这里不会被keepalive -->
     <!--"-->
-    <router-view v-if="!$route.meta.keepAlive"  class="Router"></router-view>
+    <router-view v-if="!$route.meta.keepAlive" class="Router"></router-view>
   </div>
 </template>
 
